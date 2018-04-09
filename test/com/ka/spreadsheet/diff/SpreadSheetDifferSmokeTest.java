@@ -12,172 +12,129 @@ public class SpreadSheetDifferSmokeTest {
 
   private static final File TEMP_DIR = new File("test/resources");
 
+  private static final boolean isWindows = "\\".equals(System.getProperty("file.separator"));
+
   public static void main(String[] args) throws Exception {
-    // Unix path based tests
-    if ("/".equals(System.getProperty("file.separator"))) {
+    testDiff(
+        "Identical xlsx files",
+        new String[] {"test/resources/ss1.xlsx", "test/resources/ss1.xlsx"},
+        resultFile("test/resources/ss1_xlsx_ss1_xlsx.out"),
+        null);
+    testDiff(
+        "Diff xlsx files",
+        new String[] {"test/resources/ss1.xlsx", "test/resources/ss2.xlsx"},
+        resultFile("test/resources/ss1_xlsx_ss2_xlsx.out"),
+        null);
+    testDiff(
+        "Diff ods files",
+        new String[] {"test/resources/ss1.ods", "test/resources/ss2.ods"},
+        resultFile("test/resources/ss1_ods_ss2_ods.out"),
+        null);
+    testDiff(
+        "Diff xlsx and ods",
+        new String[] {"test/resources/ss3.xlsx", "test/resources/ss3.ods"},
+        resultFile("test/resources/ss3_xlsx_ss3_ods.out"),
+        null);
+    testDiff(
+        "Diff ods and xlsx",
+        new String[] {"test/resources/ss3.ods", "test/resources/ss3.xlsx"},
+        resultFile("test/resources/ss3_ods_ss3_xlsx.out"),
+        null);
+    testDiff(
+        "Missing file",
+        new String[] {"test/resources/missingfile", "test/resources/ss1.xlsx"},
+        null,
+        resultFile("test/resources/missing_file.err"));
+    testDiff(
+        "Bad file",
+        new String[] {"test/resources/badfile.txt", "test/resources/ss1.xlsx"},
+        null,
+        resultFile("test/resources/bad_file.err"));
+    testDiff(
+        "Numeric and formula xls xlsx",
+        new String[] {"test/resources/numeric_and_formula.xls",
+            "test/resources/numeric_and_formula.xlsx"},
+        resultFile("test/resources/numeric_and_formula.xls.xlsx.out"),
+        null);
+    testDiff(
+        "Numeric and formula xls odf",
+        new String[] {"test/resources/numeric_and_formula.xls",
+            "test/resources/numeric_and_formula.ods"},
+        resultFile("test/resources/numeric_and_formula.xls.ods.out"),
+        null);
+    testDiff(
+        "Numeric and formula odf xlsx with flag",
+        new String[] {"--diff_ignore_formulas",
+                      "test/resources/numeric_and_formula.ods",
+                      "test/resources/numeric_and_formula.xlsx"},
+        resultFile("test/resources/numeric_and_formula_ignoreformulaflag.ods.xlsx.out"),
+        null);
+    testDiff(
+        "Nullable Sheet",
+        new String[] {"test/resources/MultiSheet.xls", "test/resources/MultiSheet.xls",
+            "--ignore1", "::B", "--ignore2", "::B"},
+        resultFile("test/resources/nullableSheet_xls.out"),
+        null);
+    testDiff(
+        "Ignore single cell",
+        new String[] {"test/resources/ss3.xlsx", "test/resources/ss3.ods",
+            "--ignore1", "Sheet1:2:B", "--ignore2", "Sheet1:2:B"},
+        resultFile("test/resources/ss3_xlsx_ss3_ignore2B_ods.out"),
+        null);
+    testDiff(
+        "Macro diff",
+        new String[] {"test/resources/ss_with_macro.xlsm",
+            "test/resources/ss_without_macro.xlsx"},
+        resultFile("test/resources/macro_diff.out"),
+        null);
+    testDiff(
+        "Numeric precision diff without flag",
+        new String[] {"test/resources/ss1_numeric_precision.xlsx",
+            "test/resources/ss2_numeric_precision.xlsx"},
+        resultFile("test/resources/numeric_precision_diff.out"),
+        null);
+    testDiff(
+        "Numeric precision diff with flag",
+        new String[] {"--diff_numeric_precision=0.0000001",
+            "test/resources/ss1_numeric_precision.xlsx",
+            "test/resources/ss2_numeric_precision.xlsx"},
+        resultFile("test/resources/numeric_precision_no_diff.out"),
+        null);
+    if (!isWindows) {
       testDiff(
-          "Identical xlsx files",
-          new String[] {"test/resources/ss1.xlsx", "test/resources/ss1.xlsx"},
-          new File("test/resources/ss1_xlsx_ss1_xlsx.out"),
+          "File1 is /dev/null",
+          new String[] {"test/resources/ss1.xlsx", "/dev/null"},
+          resultFile("test/resources/ss1_xlsx_dev_null.out"),
           null);
       testDiff(
-          "Diff xlsx files",
-          new String[] {"test/resources/ss1.xlsx", "test/resources/ss2.xlsx"},
-          new File("test/resources/ss1_xlsx_ss2_xlsx.out"),
-          null);
-      testDiff(
-          "Diff ods files",
-          new String[] {"test/resources/ss1.ods", "test/resources/ss2.ods"},
-          new File("test/resources/ss1_ods_ss2_ods.out"),
-          null);
-      testDiff(
-          "Diff xlsx and ods",
-          new String[] {"test/resources/ss3.xlsx", "test/resources/ss3.ods"},
-          new File("test/resources/ss3_xlsx_ss3_ods.out"),
-          null);
-      testDiff(
-          "Diff ods and xlsx",
-          new String[] {"test/resources/ss3.ods", "test/resources/ss3.xlsx"},
-          new File("test/resources/ss3_ods_ss3_xlsx.out"),
-          null);
-      testDiff(
-          "Missing file",
-          new String[] {"test/resources/missingfile", "test/resources/ss1.xlsx"},
-          null,
-          new File("test/resources/missing_file.err"));
-      testDiff(
-          "Bad file",
-          new String[] {"test/resources/badfile.txt", "test/resources/ss1.xlsx"},
-          null,
-          new File("test/resources/bad_file.err"));
-      testDiff(
-          "Numeric and formula xls xlsx",
-          new String[] {"test/resources/numeric_and_formula.xls",
-              "test/resources/numeric_and_formula.xlsx"},
-          new File("test/resources/numeric_and_formula.xls.xlsx.out"),
-          null);
-      testDiff(
-          "Numeric and formula xls odf",
-          new String[] {"test/resources/numeric_and_formula.xls",
-              "test/resources/numeric_and_formula.ods"},
-          new File("test/resources/numeric_and_formula.xls.ods.out"),
-          null);
-      testDiff(
-          "Nullable Sheet",
-          new String[] {"test/resources/MultiSheet.xls", "test/resources/MultiSheet.xls",
-              "--ignore1", "::B", "--ignore2", "::B"},
-          new File("test/resources/nullableSheet_xls.out"),
-          null);
-      testDiff(
-          "Ignore single cell",
-          new String[] {"test/resources/ss3.xlsx", "test/resources/ss3.ods",
-              "--ignore1", "Sheet1:2:B", "--ignore2", "Sheet1:2:B"},
-          new File("test/resources/ss3_xlsx_ss3_ignore2B_ods.out"),
-          null);
-      testDiff(
-          "Macro diff",
-          new String[] {"test/resources/ss_with_macro.xlsm",
-              "test/resources/ss_without_macro.xlsx"},
-          new File("test/resources/macro_diff.out"),
-          null);
-      testDiff(
-          "Numeric precision diff without flag",
-          new String[] {"test/resources/ss1_numeric_precision.xlsx",
-              "test/resources/ss2_numeric_precision.xlsx"},
-          new File("test/resources/numeric_precision_diff.out"),
-          null);
-      testDiff(
-          "Numeric precision diff with flag",
-          new String[] {"--diff_numeric_precision=0.0000001",
-              "test/resources/ss1_numeric_precision.xlsx",
-              "test/resources/ss2_numeric_precision.xlsx"},
-          new File("test/resources/numeric_precision_no_diff.out"),
-          null);
-    } else if ("\\".equals(System.getProperty("file.separator"))) {
-      testDiff(
-          "Identical xlsx files",
-          new String[] {"test/resources/ss1.xlsx", "test/resources/ss1.xlsx"},
-          new File("test/resources/win_ss1_xlsx_ss1_xlsx.out"),
-          null);
-      testDiff(
-          "Diff xlsx files",
-          new String[] {"test/resources/ss1.xlsx", "test/resources/ss2.xlsx"},
-          new File("test/resources/win_ss1_xlsx_ss2_xlsx.out"),
-          null);
-      testDiff(
-          "Diff ods files",
-          new String[] {"test/resources/ss1.ods", "test/resources/ss2.ods"},
-          new File("test/resources/win_ss1_ods_ss2_ods.out"),
-          null);
-      testDiff(
-          "Diff xlsx and ods",
-          new String[] {"test/resources/ss3.xlsx", "test/resources/ss3.ods"},
-          new File("test/resources/win_ss3_xlsx_ss3_ods.out"),
-          null);
-      testDiff(
-          "Diff ods and xlsx",
-          new String[] {"test/resources/ss3.ods", "test/resources/ss3.xlsx"},
-          new File("test/resources/win_ss3_ods_ss3_xlsx.out"),
-          null);
-      testDiff(
-          "Missing file",
-          new String[] {"test/resources/missingfile", "test/resources/ss1.xlsx"},
-          null,
-          new File("test/resources/win_missing_file.err"));
-      testDiff(
-          "Bad file",
-          new String[] {"test/resources/badfile.txt", "test/resources/ss1.xlsx"},
-          null,
-          new File("test/resources/win_bad_file.err"));
-      testDiff(
-          "Numeric and formula xls xlsx",
-          new String[] {"test/resources/numeric_and_formula.xls",
-              "test/resources/numeric_and_formula.xlsx"},
-          new File("test/resources/win_numeric_and_formula.xls.xlsx.out"),
-          null);
-      testDiff(
-          "Numeric and formula xls odf",
-          new String[] {"test/resources/numeric_and_formula.xls",
-              "test/resources/numeric_and_formula.ods"},
-          new File("test/resources/win_numeric_and_formula.xls.ods.out"),
-          null);
-      testDiff(
-          "Nullable Sheet",
-          new String[] {"test/resources/MultiSheet.xls", "test/resources/MultiSheet.xls",
-              "--ignore1", "::B", "--ignore2", "::B"},
-          new File("test/resources/win_nullableSheet_xls.out"),
-          null);
-      testDiff(
-          "Ignore single cell",
-          new String[] {"test/resources/ss3.xlsx", "test/resources/ss3.ods",
-              "--ignore1", "Sheet1:2:B", "--ignore2", "Sheet1:2:B"},
-          new File("test/resources/win_ss3_xlsx_ss3_ignore2B_ods.out"),
-          null);
-      testDiff(
-          "Macro diff",
-          new String[] {"test/resources/ss_with_macro.xlsm",
-              "test/resources/ss_without_macro.xlsx"},
-          new File("test/resources/win_macro_diff.out"),
-          null);
-      testDiff(
-          "Numeric precision diff without flag",
-          new String[] {"test/resources/ss1_numeric_precision.xlsx",
-              "test/resources/ss2_numeric_precision.xlsx"},
-          new File("test/resources/win_numeric_precision_diff.out"),
-          null);
-      testDiff(
-          "Numeric precision diff with flag",
-          new String[] {"--diff_numeric_precision=0.0000001",
-              "test/resources/ss1_numeric_precision.xlsx",
-              "test/resources/ss2_numeric_precision.xlsx"},
-          new File("test/resources/win_numeric_precision_no_diff.out"),
+          "File2 is /dev/null",
+          new String[] {"/dev/null", "test/resources/ss1.xlsx"},
+          resultFile("test/resources/dev_null_ss1_xlsx.out"),
           null);
     }
-    System.out.println("All tests pass");
+    testDiff(
+        "With without formula with flag",
+        new String[] {"--diff_ignore_formulas",
+                      "test/resources/ss_without_formula.xlsx",
+                      "test/resources/ss_with_formula.xlsx"},
+        resultFile("test/resources/ss_with_without_formula_ignoreformulaflag.out"),
+        null);
+    testDiff(
+        "With without formula without flag",
+        new String[] {"test/resources/ss_without_formula.xlsx",
+                      "test/resources/ss_with_formula.xlsx"},
+        resultFile("test/resources/ss_with_without_formula.out"),
+        null);
+    System.err.println("All tests pass");
+  }
+
+  private static File resultFile(String resultFile) {
+    return new File(isWindows ? ("win_" + resultFile) : resultFile);
   }
 
   public static void testDiff(String testName, String[] args, @Nullable File expectedOutFile,
       @Nullable File expectedErrFile) throws Exception {
+    System.err.print(testName + "... ");
     PrintStream oldOut = System.out;
     PrintStream oldErr = System.err;
     File outFile = File.createTempFile("testOutput", "out", TEMP_DIR);
@@ -212,6 +169,6 @@ public class SpreadSheetDifferSmokeTest {
     assertTrue(testCompleted);
     verifyFileContentsSame(errFile, expectedErrFile);
     verifyFileContentsSame(outFile, expectedOutFile);
-    System.out.println(testName + " passed");
+    System.err.println("passed");
   }
 }

@@ -35,8 +35,12 @@ public class CellPos {
     return getCellPosition() + " => " + cell.toString();
   }
 
-  public Object getCellValue() {
-    return cell.getValue();
+  public CellValue getCellValue() {
+    try {
+      return cell.getValue();
+    } catch (Exception e) {
+      throw new RuntimeException("Error reading Cell at " + getCellPosition() + ": " + e.getMessage(), e);
+    }
   }
 
   /**

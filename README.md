@@ -15,6 +15,7 @@ This software is distributed under the [MIT](http://www.opensource.org/licenses/
 * Works with xls, xlsx, xlsm, ods. You may compare any of these with each other.
 * Compares only cell "contents". Formatting, macros are currently ignored.
 * Using --ignore1 & --ignore2 (both optional) you may tell the diff to skip any number of sheets / rows / columns / cells.
+* Other flags to control diffing (see below for description of these): --diff_numeric_precision, --diff_ignore_formulas.
 
 Report bugs / issues / requests [here](https://github.com/na-ka-na/ExcelCompare/issues)
 
@@ -31,15 +32,28 @@ Just [download](https://github.com/na-ka-na/ExcelCompare/releases) the zip file.
 
 Extract it anywhere (and optionally you add the bin folder to PATH).
 
+### macOS
+
+[Homebrew](http://brew.sh/) makes it easy to install ExcelCompare:
+
+    $ brew update
+    $ brew install excel-compare
+
 ## Usage
 
-    $ excel_cmp <file1> <file2> [--ignore1 <sheet-ignore-spec> ..] [--ignore2 <sheet-ignore-spec> ..]
+    $ excel_cmp <diff-flags> <file1> <file2> [--ignore1 <sheet-ignore-spec> ..] [--ignore2 <sheet-ignore-spec> ..]
 
 Notes:
 
 * --ignore1 (file1) and --ignore2 (file2) are independent of each other
 * Give one and only one &lt;sheet-ignore-spec> per sheet
 * File path is assumed relative to current directory unless full path is provided
+* file1 and/or file2 can be '/dev/null' or '\\.\NUL' (on windows) which is treated as empty file. This is useful for using ExcelCompare for git diff.
+
+### Diff flags
+
+* --diff_numeric_precision: by default numbers are diffed with double precision, to change that specify this flag as --diff_numeric_precision=0.0001
+* --diff_ignore_formulas: by default for cells with formula, formula is compared instead of the evaluated value. Use this flag to compare evaluated value instead
 
 ### Sheet Ignore Spec
     <sheet-name>:<row-ignore-spec>:<column-ignore-spec>:<cell-ignore-spec>
